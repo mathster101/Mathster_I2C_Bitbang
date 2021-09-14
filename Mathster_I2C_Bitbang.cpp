@@ -38,6 +38,7 @@ void Mathster_I2C_Bitbang::i2c_start()
 
 void Mathster_I2C_Bitbang::i2c_end()
 {
+	delayU(I2C_DELAY);
 	digitalWrite(SCL_PIN, HIGH);
 	digitalWrite(SDA_PIN, LOW);
 	delayU(CLOCK_SKIRT*2);

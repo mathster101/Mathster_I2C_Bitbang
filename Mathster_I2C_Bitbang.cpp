@@ -36,6 +36,14 @@ void Mathster_I2C_Bitbang::i2c_start()
 	digitalWrite(SCL_PIN, LOW);
 }
 
+void Mathster_I2C_Bitbang::i2c_end()
+{
+	digitalWrite(SCL_PIN, HIGH);
+	digitalWrite(SDA_PIN, LOW);
+	delayU(CLOCK_SKIRT*2);
+	digitalWrite(SDA_PIN, HIGH);
+}
+
 void Mathster_I2C_Bitbang::i2c_data_byte_out(uint8_t data)
 {
 	bool bit;
@@ -63,7 +71,8 @@ bool Mathster_I2C_Bitbang::i2c_check_ack()
 	delayU(I2C_DELAY);
 	digitalWrite(SCL_PIN, HIGH);
 	ack = digitalRead(SDA_PIN);
-	delayU(I2C_DELAY);
+	delayU(I2C_DELAY - CLOCK_SKIRT);
 	digitalWrite(SCL_PIN, LOW);
-	return !ack;
+	pinMode(SDA_PIN, OUTPUT);
+	return !ack; // low sda = high ack
 }

@@ -19,4 +19,5 @@ private:
 	bool i2c_check_ack();
 	void set_pin_state(int pin, bool state);
 	void set_pin_mode(int pin, int mode);
+	bool read_pin_state(int pin);
 };

@@ -7,6 +7,8 @@ public:
 	void init(int scl, int sda, int frequency);
 	bool write(uint8_t device_addr, uint8_t data);
 	bool request_byte(uint8_t device_addr, uint8_t &data);
+	bool request_bytes(uint8_t device_addr, uint8_t *buffer, int num_bytes);
+
 private:
 	int SCL_PIN, SDA_PIN;
 	float I2C_FREQ;

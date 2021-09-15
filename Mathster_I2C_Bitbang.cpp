@@ -36,7 +36,6 @@ void Mathster_I2C_Bitbang::i2c_data_byte_out(uint8_t data)
 	bool bit;
 	for (int i = 0; i < 8; i++)
 	{
-		
 		delayU(I2C_DELAY);
 		bit = (data << i) & 0b10000000;
 		
@@ -57,7 +56,6 @@ void Mathster_I2C_Bitbang::i2c_data_byte_in(uint8_t &data)
 	set_pin_mode(SDA_PIN, INPUT);
 	for (int i = 0; i < 8; i++)
 	{
-		
 		delayU(I2C_DELAY);
 		set_pin_state(SCL_PIN, HIGH);
 		bit = digitalRead(SDA_PIN);
@@ -123,6 +121,48 @@ bool Mathster_I2C_Bitbang::request_byte(uint8_t device_addr, uint8_t &data)
 	set_pin_state(SDA_PIN, LOW);
 	delayU(I2C_DELAY - CLOCK_SKIRT);
 	
+	i2c_end();
+	return true;
+}
+
+bool Mathster_I2C_Bitbang::request_bytes(uint8_t device_addr, uint8_t *buffer, int num_bytes)
+{
+	delayU(I2C_DELAY);
+	i2c_start();
+	i2c_data_byte_out((device_addr << 1) | 0x01);
+	
+	if(!i2c_check_ack())
+	{
+		i2c_end();
+		return false;
+	}
+
+	int data = 0;
+	for (int i = 0; i < num_bytes; i++)
+	{
+		i2c_data_byte_in(buffer[i]);
+		if(i != (num_bytes - 1))
+		{
+			set_pin_state(SDA_PIN, LOW); //master pushes SDA low for ACK
+			delayU(CLOCK_SKIRT * 2);
+			set_pin_state(SCL_PIN, HIGH);
+			delayU(I2C_DELAY);
+			set_pin_state(SCL_PIN, LOW);
+			delayU(I2C_DELAY);
+		}
+		else
+		{
+			set_pin_state(SDA_PIN, HIGH); //master pushes SDA high for NACK
+			delayU(I2C_DELAY);
+			set_pin_state(SCL_PIN, HIGH);
+			delayU(I2C_DELAY);
+			set_pin_state(SCL_PIN, LOW);
+			delayU(CLOCK_SKIRT);
+			set_pin_state(SDA_PIN, LOW);
+			delayU(I2C_DELAY - CLOCK_SKIRT);
+		}
+	}
+
 	i2c_end();
 	return true;
 }

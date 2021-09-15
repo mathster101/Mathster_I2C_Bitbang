@@ -12,6 +12,8 @@ public:
   void i2c_data_byte_out(uint8_t data);
   void i2c_data_byte_in(uint8_t &data);
   bool i2c_check_ack();
+  bool write(uint8_t device_addr, uint8_t data);
+  bool request_byte(uint8_t device_addr, uint8_t &data);
 };
 */
 
@@ -65,6 +67,23 @@ void Mathster_I2C_Bitbang::i2c_data_byte_out(uint8_t data)
 	}
 }
 
+void Mathster_I2C_Bitbang::i2c_data_byte_in(uint8_t &data)
+{
+	bool bit;
+	pinMode(SDA_PIN, INPUT);
+	for (int i = 0; i < 8; i++)
+	{
+		
+		delayU(I2C_DELAY);
+		digitalWrite(SCL_PIN, HIGH);
+		bit = digitalRead(SDA_PIN);
+		data = (data << 1) | (uint8_t)bit;
+		delayU(I2C_DELAY - CLOCK_SKIRT);
+		digitalWrite(SCL_PIN, LOW);
+	}
+	pinMode(SDA_PIN, OUTPUT);
+}
+
 bool Mathster_I2C_Bitbang::i2c_check_ack()
 {
 	bool ack;
@@ -76,4 +95,45 @@ bool Mathster_I2C_Bitbang::i2c_check_ack()
 	digitalWrite(SCL_PIN, LOW);
 	pinMode(SDA_PIN, OUTPUT);
 	return !ack; // low sda = high ack
+}
+
+bool Mathster_I2C_Bitbang::write(uint8_t device_addr, uint8_t data)
+{
+	i2c_start();
+	i2c_data_byte_out(device_addr << 1);
+
+	if(!i2c_check_ack())
+	{
+		i2c_end();
+		return false;
+	}
+	i2c_data_byte_out(data);
+
+	if(!i2c_check_ack())
+	{
+		i2c_end();
+		return false;
+	}
+	i2c_end();
+}
+
+bool Mathster_I2C_Bitbang::request_byte(uint8_t device_addr, uint8_t &data)
+{
+	i2c_start();
+	i2c_data_byte_out((device_addr<<1) | 0x01); //read mode
+	
+	if(!i2c_check_ack())
+	{
+		i2c_end();
+		return false;
+	}
+	i2c_data_byte_in(data);
+	
+	digitalWrite(SDA_PIN, HIGH); //master pushes SDA high for NACK
+	delayU(I2C_DELAY);
+	digitalWrite(SCL_PIN, HIGH);
+	delayU(I2C_DELAY);
+	digitalWrite(SCL_PIN, LOW);
+	i2c_end();
+	Serial.println(data, HEX);
 }

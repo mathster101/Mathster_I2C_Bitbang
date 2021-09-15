@@ -14,4 +14,6 @@ public:
 	void i2c_data_byte_out(uint8_t data);
 	void i2c_data_byte_in(uint8_t &data);
 	bool i2c_check_ack();
+	bool write(uint8_t device_addr, uint8_t data);
+	bool request_byte(uint8_t device_addr, uint8_t &data);
 };

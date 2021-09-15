@@ -1,9 +1,6 @@
 #include "Mathster_I2C_Bitbang.h"
 #define delayU delayMicroseconds
 
-#define OUTPUT 0x02
-#define INPUT  0x01
-
 void Mathster_I2C_Bitbang::init(int scl, int sda, int frequency)
 {
 	SCL_PIN = scl;
@@ -130,6 +127,8 @@ bool Mathster_I2C_Bitbang::request_byte(uint8_t device_addr, uint8_t &data)
 	return true;
 }
 
+//______________________________________________________//
+//change according to the platform being used
 void Mathster_I2C_Bitbang::set_pin_mode(int pin, int mode)
 {
 	pinMode(pin, mode);

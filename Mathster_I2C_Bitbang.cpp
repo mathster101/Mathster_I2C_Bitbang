@@ -1,21 +1,8 @@
 #include "Mathster_I2C_Bitbang.h"
 #define delayU delayMicroseconds
-/*
-class Mathster_I2C_Bitbang {
-public:
-  int SCL_PIN, SDA_PIN;
-  float I2C_FREQ;
-  float I2C_DELAY;
-  void init(int scl, int sda, int frequency)
-  void i2c_start();
-  void i2c_end();
-  void i2c_data_byte_out(uint8_t data);
-  void i2c_data_byte_in(uint8_t &data);
-  bool i2c_check_ack();
-  bool write(uint8_t device_addr, uint8_t data);
-  bool request_byte(uint8_t device_addr, uint8_t &data);
-};
-*/
+
+#define OUTPUT 0x02
+#define INPUT  0x01
 
 void Mathster_I2C_Bitbang::init(int scl, int sda, int frequency)
 {
@@ -119,6 +106,7 @@ bool Mathster_I2C_Bitbang::write(uint8_t device_addr, uint8_t data)
 
 bool Mathster_I2C_Bitbang::request_byte(uint8_t device_addr, uint8_t &data)
 {
+	delayU(I2C_DELAY);// just for spacing
 	i2c_start();
 	i2c_data_byte_out((device_addr<<1) | 0x01); //read mode
 	
@@ -134,6 +122,20 @@ bool Mathster_I2C_Bitbang::request_byte(uint8_t device_addr, uint8_t &data)
 	digitalWrite(SCL_PIN, HIGH);
 	delayU(I2C_DELAY);
 	digitalWrite(SCL_PIN, LOW);
+	delayU(CLOCK_SKIRT);
+	digitalWrite(SDA_PIN, LOW);
+	delayU(I2C_DELAY - CLOCK_SKIRT);
+	
 	i2c_end();
-	Serial.println(data, HEX);
+	return true;
+}
+
+void Mathster_I2C_Bitbang::set_pin_mode(int pin, int mode)
+{
+	pinMode(pin, mode);
+}
+
+void Mathster_I2C_Bitbang::set_pin_state(int pin, bool state)
+{
+	digitalWrite(pin, state);
 }

@@ -7,6 +7,8 @@ void Mathster_I2C_Bitbang::init(int scl, int sda, int frequency)
 	SDA_PIN = sda;
 	I2C_FREQ = frequency;
 	I2C_DELAY = (1 / I2C_FREQ) * 1e6 * 0.5;
+	CLOCK_SKIRT = (int)(I2C_DELAY / 2);
+	CLOCK_SKIRT < 2 ? CLOCK_SKIRT = 1 : true;
 	set_pin_mode(SCL_PIN, OUTPUT);
 	delayU(20);
 	set_pin_mode(SDA_PIN, OUTPUT);

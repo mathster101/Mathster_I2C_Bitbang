@@ -60,7 +60,7 @@ void Mathster_I2C_Bitbang::i2c_data_byte_in(uint8_t &data)
 	{
 		delayU(I2C_DELAY);
 		set_pin_state(SCL_PIN, HIGH);
-		bit = digitalRead(SDA_PIN);
+		bit = read_pin_state(SDA_PIN);
 		data = (data << 1) | (uint8_t)bit;
 		delayU(I2C_DELAY - CLOCK_SKIRT);
 		set_pin_state(SCL_PIN, LOW);
@@ -74,7 +74,7 @@ bool Mathster_I2C_Bitbang::i2c_check_ack()
 	set_pin_mode(SDA_PIN, INPUT);
 	delayU(I2C_DELAY);
 	set_pin_state(SCL_PIN, HIGH);
-	ack = digitalRead(SDA_PIN);
+	ack = read_pin_state(SDA_PIN);
 	delayU(I2C_DELAY - CLOCK_SKIRT);
 	set_pin_state(SCL_PIN, LOW);
 	set_pin_mode(SDA_PIN, OUTPUT);
